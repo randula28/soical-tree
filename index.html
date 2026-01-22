@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randula Perera | Professional Identity</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;600&family=Noto+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #020204;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Mobile වලදී scroll කළ හැකි වීමට */
+            padding: 20px 0;
+        }
+
+        /* --- Dynamic Background --- */
+        #bg-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #bg-icon-blur, #bg-img-blur {
+            position: absolute;
+            opacity: 0;
+            transition: opacity 1.2s ease, transform 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: none;
+        }
+
+        #bg-icon-blur { font-size: 50vmax; filter: blur(120px); transform: scale(0.6); }
+        
+        #bg-img-blur {
+            width: 80%; height: 80%;
+            object-fit: cover;
+            border-radius: 50%;
+            filter: blur(100px);
+            transform: scale(0.8);
+        }
+
+        /* --- Profile Card (Responsive) --- */
+        .profile-container {
+            width: 90%; 
+            max-width: 400px;
+            padding: 40px 25px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.01);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px); /* Safari support */
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Profile Pic Wrapper */
+        .profile-pic-wrapper {
+            width: 120px; height: 120px;
+            margin: 0 auto 20px auto;
+            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            cursor: pointer;
+        }
+
+        .profile-pic {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.03);
+            transition: 0.6s;
+        }
+
+        .profile-pic-wrapper:hover { transform: scale(1.08); }
+
+        /* --- Buttons Setup --- */
+        .links-wrapper { display: flex; flex-direction: column; gap: 14px; }
+        .btn {
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px; border-radius: 18px;
+            text-decoration: none; color: rgba(255, 255, 255, 0.6);
+            font-weight: 600; cursor: pointer;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            font-size: 15px;
+        }
+        .btn:hover { color: white; background: rgba(255, 255, 255, 0.07); transform: translateY(-2px); }
+        .btn i { margin-right: 12px; font-size: 20px; }
+
+        /* Button Colors */
+        .facebook:hover { border-color: #1877F2; }
+        .instagram:hover { border-color: #E4405F; }
+        .tiktok:hover { border-color: #fff; }
+        .spotify:hover { border-color: #1DB954; }
+        .steam:hover { border-color: #66c0f4; }
+        .discord:hover { border-color: #5865F2; }
+
+        /* --- Click & Zoom Animations --- */
+        #zoom-wrapper {
+            position: fixed; z-index: 10001;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        #zoom-logo { font-size: 80px; transition: 1s cubic-bezier(0.19, 1, 0.22, 1); z-index: 2; }
+        #zoom-text { font-size: 40px; font-weight: 800; margin-left: -10px; opacity: 0; white-space: nowrap; transition: 1s; z-index: 1; }
+
+        .active-zoom #zoom-logo { transform: translateX(-40%); }
+        .active-zoom #zoom-text { transform: translateX(10px); opacity: 1; }
+
+        .fullscreen-zoom { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) scale(1) !important; }
+        .zoomed-out-exit { transform: translate(-50%, -50%) scale(25) !important; opacity: 0 !important; transition: 1.2s; }
+
+        .fill-layer {
+            position: fixed; border-radius: 50%; width: 10vmax; height: 10vmax;
+            transform: translate(-50%, -50%) scale(0); z-index: 10000;
+            pointer-events: none; transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .fill-layer.active { transform: translate(-50%, -50%) scale(45); }
+
+        /* --- Media Queries for Mobile --- */
+        @media (max-width: 480px) {
+            .profile-container { width: 85%; padding: 30px 20px; }
+            h1 { font-size: 20px !important; }
+            #zoom-logo { font-size: 60px; }
+            #zoom-text { font-size: 30px; }
+            .active-zoom #zoom-logo { transform: translateX(-35%); }
+            .btn { padding: 14px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-container">
+        <i id="bg-icon-blur" class="fab fa-facebook"></i>
+        <img id="bg-img-blur" src="https://i.ibb.co/BVzM9SVj/20250414-153918.jpg" alt="">
+    </div>
+    
+    <div id="fillLayer" class="fill-layer"></div>
+
+    <div id="zoom-wrapper">
+        <i id="zoom-logo" class="fab fa-facebook"></i>
+        <span id="zoom-text">FACEBOOK</span>
+    </div>
+
+    <div class="profile-container" id="mainUI">
+        <div class="profile-pic-wrapper" onmouseover="showImgBg()" onmouseleave="hideBg()">
+            <img id="myPhoto" src="https://i.ibb.co/BVzM9SVj/20250414-153918.jpg" alt="Randula Perera" class="profile-pic">
+        </div>
+
+        <h1 style="margin-bottom: 5px; letter-spacing: 2px; font-size: 24px;">RANDULA PERERA</h1>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 30px; letter-spacing: 2px; font-weight: 600;">CONTACT ME</p>
+
+        <div class="links-wrapper">
+            <div class="btn facebook" onmouseover="showBg('fa-facebook', '#1877F2')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://www.facebook.com/share/17tQeZfqtP/', '#1877F2', 'fa-facebook', 'Facebook', 'Noto Sans')">
+                <i class="fab fa-facebook"></i> Facebook
+            </div>
+            <div class="btn instagram" onmouseover="showBg('fa-instagram', '#E4405F')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://www.instagram.com/randula._.perera_?igsh=d3ExcXBmYmVoZG9k', '#E4405F', 'fa-instagram', 'Instagram', 'Montserrat')">
+                <i class="fab fa-instagram"></i> Instagram
+            </div>
+            <div class="btn tiktok" onmouseover="showBg('fa-tiktok', '#fff')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://www.tiktok.com/@randula._.perera?_r=1&_t=ZS-92YMcMtofBP', '#010101', 'fa-tiktok', 'TikTok', 'Montserrat')">
+                <i class="fab fa-tiktok"></i> TikTok
+            </div>
+            <div class="btn spotify" onmouseover="showBg('fa-spotify', '#1DB954')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://open.spotify.com/user/e0kk2xx4xdqla0w3pvl9vrl50?si=GMUyJSFYQ6SdoR-sAJI44A', '#1DB954', 'fa-spotify', 'Spotify', 'Montserrat')">
+                <i class="fab fa-spotify"></i> Spotify
+            </div>
+            <div class="btn steam" onmouseover="showBg('fa-steam', '#66c0f4')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://steamcommunity.com/profiles/76561199653615529/', '#171a21', 'fa-steam', 'STEAM', 'Noto Sans')">
+                <i class="fab fa-steam"></i> Steam
+            </div>
+            <div class="btn discord" onmouseover="showBg('fa-discord', '#5865F2')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://discord.gg/xX5tcmmy', '#5865F2', 'fa-discord', 'Discord', 'Noto Sans')">
+                <i class="fab fa-discord"></i> Discord
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bgIcon = document.getElementById('bg-icon-blur');
+        const bgImg = document.getElementById('bg-img-blur');
+        const myPhoto = document.getElementById('myPhoto');
+        const zoomWrapper = document.getElementById('zoom-wrapper');
+        const zoomLogo = document.getElementById('zoom-logo');
+        const zoomText = document.getElementById('zoom-text');
+        const fill = document.getElementById('fillLayer');
+        const mainUI = document.getElementById('mainUI');
+
+        function showBg(iconClass, color) {
+            bgImg.style.opacity = "0";
+            bgIcon.className = `fab ${iconClass}`;
+            bgIcon.style.color = color;
+            bgIcon.style.opacity = "0.15";
+            bgIcon.style.transform = "scale(1.1)";
+        }
+
+        function showImgBg() {
+            bgIcon.style.opacity = "0";
+            bgImg.src = myPhoto.src;
+            bgImg.style.opacity = "0.25";
+            bgImg.style.transform = "scale(1.05)";
+        }
+
+        function hideBg() { 
+            bgIcon.style.opacity = "0"; 
+            bgImg.style.opacity = "0"; 
+            bgIcon.style.transform = "scale(0.8)";
+            bgImg.style.transform = "scale(0.8)";
+        }
+
+        function startProTransition(e, btn, url, color, iconClass, name, font) {
+            const originalIcon = btn.querySelector('i');
+            const iconRect = originalIcon.getBoundingClientRect();
+            
+            // Start at icon's position
+            zoomWrapper.style.top = (iconRect.top + iconRect.height / 2) + 'px';
+            zoomWrapper.style.left = (iconRect.left + iconRect.width / 2) + 'px';
+            zoomWrapper.style.transform = 'translate(-50%, -50%) scale(0.2)';
+            
+            zoomLogo.className = `fab ${iconClass}`;
+            zoomLogo.style.color = 'white';
+            zoomText.innerText = name;
+            zoomText.style.fontFamily = font;
+            zoomWrapper.style.visibility = 'visible';
+            originalIcon.style.opacity = '0';
+
+            fill.style.left = (iconRect.left + iconRect.width / 2) + 'px';
+            fill.style.top = (iconRect.top + iconRect.height / 2) + 'px';
+            fill.style.backgroundColor = color;
+
+            setTimeout(() => {
+                fill.classList.add('active');
+                mainUI.style.opacity = '0';
+                zoomWrapper.classList.add('fullscreen-zoom');
+                hideBg();
+            }, 50);
+
+            setTimeout(() => { zoomWrapper.classList.add('active-zoom'); }, 850);
+            setTimeout(() => { zoomWrapper.classList.add('zoomed-out-exit'); }, 1850);
+
+            setTimeout(() => {
+                window.open(url, '_blank');
+                setTimeout(() => {
+                    zoomWrapper.classList.remove('zoomed-out-exit', 'active-zoom', 'fullscreen-zoom');
+                    fill.classList.remove('active');
+                    mainUI.style.opacity = '1';
+                    originalIcon.style.opacity = '1';
+                    setTimeout(() => { zoomWrapper.style.visibility = 'hidden'; }, 1000);
+                }, 1200);
+            }, 2600);
+        }
+    </script>
+</body>
+</html>
