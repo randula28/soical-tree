@@ -18,7 +18,6 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            /* Mobile වලදී scroll කළ හැකි වීමට */
             padding: 20px 0;
         }
 
@@ -50,7 +49,7 @@
             transform: scale(0.8);
         }
 
-        /* --- Profile Card (Responsive) --- */
+        /* --- Profile Card --- */
         .profile-container {
             width: 90%; 
             max-width: 400px;
@@ -58,14 +57,13 @@
             text-align: center;
             background: rgba(255, 255, 255, 0.01);
             backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px); /* Safari support */
+            -webkit-backdrop-filter: blur(50px);
             border-radius: 40px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             z-index: 10;
         }
 
-        /* Profile Pic Wrapper */
         .profile-pic-wrapper {
             width: 120px; height: 120px;
             margin: 0 auto 20px auto;
@@ -73,6 +71,10 @@
             display: flex; justify-content: center; align-items: center;
             transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
             cursor: pointer;
+            /* Disable selection */
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .profile-pic {
@@ -83,6 +85,8 @@
             padding: 5px;
             background: rgba(255, 255, 255, 0.03);
             transition: 0.6s;
+            /* Protect image from pointer actions */
+            pointer-events: none;
         }
 
         .profile-pic-wrapper:hover { transform: scale(1.08); }
@@ -102,10 +106,10 @@
         .btn:hover { color: white; background: rgba(255, 255, 255, 0.07); transform: translateY(-2px); }
         .btn i { margin-right: 12px; font-size: 20px; }
 
-        /* Button Colors */
         .facebook:hover { border-color: #1877F2; }
         .instagram:hover { border-color: #E4405F; }
         .tiktok:hover { border-color: #fff; }
+        .github:hover { border-color: #ffffff; }
         .spotify:hover { border-color: #1DB954; }
         .steam:hover { border-color: #66c0f4; }
         .discord:hover { border-color: #5865F2; }
@@ -133,7 +137,6 @@
         }
         .fill-layer.active { transform: translate(-50%, -50%) scale(45); }
 
-        /* --- Media Queries for Mobile --- */
         @media (max-width: 480px) {
             .profile-container { width: 85%; padding: 30px 20px; }
             h1 { font-size: 20px !important; }
@@ -144,9 +147,7 @@
         }
     </style>
 </head>
-<body>
-
-    <div id="bg-container">
+<body oncontextmenu="return false;"> <div id="bg-container">
         <i id="bg-icon-blur" class="fab fa-facebook"></i>
         <img id="bg-img-blur" src="https://i.ibb.co/BVzM9SVj/20250414-153918.jpg" alt="">
     </div>
@@ -159,8 +160,12 @@
     </div>
 
     <div class="profile-container" id="mainUI">
-        <div class="profile-pic-wrapper" onmouseover="showImgBg()" onmouseleave="hideBg()">
-            <img id="myPhoto" src="https://i.ibb.co/BVzM9SVj/20250414-153918.jpg" alt="Randula Perera" class="profile-pic">
+        <div class="profile-pic-wrapper" 
+             onmouseover="showImgBg()" 
+             onmouseleave="hideBg()" 
+             onmousedown="return false;" 
+             onselectstart="return false;">
+            <img id="myPhoto" src="https://i.ibb.co/BVzM9SVj/20250414-153918.jpg" alt="Randula Perera" class="profile-pic" draggable="false">
         </div>
 
         <h1 style="margin-bottom: 5px; letter-spacing: 2px; font-size: 24px;">RANDULA PERERA</h1>
@@ -175,6 +180,9 @@
             </div>
             <div class="btn tiktok" onmouseover="showBg('fa-tiktok', '#fff')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://www.tiktok.com/@randula._.perera?_r=1&_t=ZS-92YMcMtofBP', '#010101', 'fa-tiktok', 'TikTok', 'Montserrat')">
                 <i class="fab fa-tiktok"></i> TikTok
+            </div>
+            <div class="btn github" onmouseover="showBg('fa-github', '#ffffff')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://github.com/randula-perera', '#24292e', 'fa-github', 'GitHub', 'Montserrat')">
+                <i class="fab fa-github"></i> GitHub
             </div>
             <div class="btn spotify" onmouseover="showBg('fa-spotify', '#1DB954')" onmouseleave="hideBg()" onclick="startProTransition(event, this, 'https://open.spotify.com/user/e0kk2xx4xdqla0w3pvl9vrl50?si=GMUyJSFYQ6SdoR-sAJI44A', '#1DB954', 'fa-spotify', 'Spotify', 'Montserrat')">
                 <i class="fab fa-spotify"></i> Spotify
@@ -197,6 +205,11 @@
         const zoomText = document.getElementById('zoom-text');
         const fill = document.getElementById('fillLayer');
         const mainUI = document.getElementById('mainUI');
+
+        // පින්තූරය Copy කිරීම වැළැක්වීමට අමතර Script එකක්
+        document.getElementById('myPhoto').addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
 
         function showBg(iconClass, color) {
             bgImg.style.opacity = "0";
@@ -224,7 +237,6 @@
             const originalIcon = btn.querySelector('i');
             const iconRect = originalIcon.getBoundingClientRect();
             
-            // Start at icon's position
             zoomWrapper.style.top = (iconRect.top + iconRect.height / 2) + 'px';
             zoomWrapper.style.left = (iconRect.left + iconRect.width / 2) + 'px';
             zoomWrapper.style.transform = 'translate(-50%, -50%) scale(0.2)';
